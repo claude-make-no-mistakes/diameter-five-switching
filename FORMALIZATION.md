@@ -6,6 +6,7 @@ Run this command from the repository root with the toolchain specified in the to
 
 ~~~sh
 lean formalization/FlipChoices.lean
+lean formalization/ModularExclusions.lean
 ~~~
 
-The paper proves the spectral decomposition, the overlaps, and the sufficiency conditions for the tree families. The Python certificate replays the finite exceptions and graph checks. Those steps remain outside Lean.
+Lean also verifies the 25 modular residue certificates and proves that the represented polynomials have no integer root. The exact Python replay constructs the resultant polynomials from the radial model. The spectral decomposition, the identification of the resultants, and the proof that the constructed signs see every eigenvalue remain outside Lean.

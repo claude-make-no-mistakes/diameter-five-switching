@@ -1,0 +1,5 @@
+# Prior-work check, 25 November 2026
+
+Akbari et al. prove asymptotic versions of the switching conjecture and pose the all-tree case in Problem 1.6. Dong's Paper 8 gives a Lean-verified result for trees of diameter at most four. Cha and Shan describe the diameter-five families used here and classify trees with exactly three main eigenvalues for the original all-ones vector. The theorem in this repository concerns the existence of a sign vector that sees all distinct eigenspaces. [Akbari et al.](https://arxiv.org/abs/2609.27046) · [Dong, Paper 8](https://github.com/Horace-Maxwell/ai4math-results/blob/main/papers/switching-diam4/note.tex) · [Cha and Shan, §3](https://arxiv.org/html/2607.13577v1#S3)
+
+The public sources checked did not yield an earlier proof of the same diameter-five family theorem. X Latest search for “switching conjecture” and “main eigenvalues” returned no results. Publication priority remains unestablished. [X query](https://x.com/search?q=%22switching%20conjecture%22%20%22main%20eigenvalues%22&f=live)

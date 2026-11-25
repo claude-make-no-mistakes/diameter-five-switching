@@ -32,7 +32,7 @@ def verify_hashes(manifest, folder):
 def main():
     verify_hashes(HERE / "verification/FROZEN.sha256", HERE)
     for script in ("switching/check_switching.py", "switching/check_extensions.py",
-                   "verification/switching_controls.py"):
+                   "verification/switching_controls.py", "verification/check_lean_inputs.py"):
         print(run(script).strip(), flush=True)
 
 

@@ -8,12 +8,11 @@ The frozen inputs were hashed with SHA-256 before running the associated checks.
 | `check_switching.py` | `90dbb7ad4ec3a074e0222f9e00e8a28d595f9e1ce210a35bf70379dafa9711c8` |
 | `check_extensions.py` | `14cf9c9c33733b142266a62d250044cb25c4219a7b49b7ce72231c164ce6b14c` |
 
-Replay from the repository root in PowerShell.
+Replay from the repository root.
 
-```powershell
-$switchingPython = 'C:/Users/Achita/.codex/tools/science/Scripts/python.exe'
-& $switchingPython conjectures/switching/check_switching.py
-& $switchingPython conjectures/switching/check_extensions.py
+```sh
+python -B switching/check_switching.py
+python -B switching/check_extensions.py
 ```
 
 Both checks exited with code 0 on Python 3.12.14 and SymPy 1.14.0. The first enumerated sign vectors modulo global negation on six graphs, verified the resultant congruence and divisor cases, then compared the constructed witness with the exact full adjacency spectrum for all 40 pairs \(1\le r\le5,1\le a\le8\).

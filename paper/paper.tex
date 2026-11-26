@@ -2,115 +2,186 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
+\usepackage{microtype}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,longtable,array,calc}
-\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
-\IfFileExists{booktabs.sty}{\usepackage{booktabs}}{%
-  \newcommand{\toprule}{\hline}
-  \newcommand{\midrule}{\hline}
-  \newcommand{\bottomrule}{\hline}
-}
-\setlength{\emergencystretch}{3em}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{5pt}
-\allowdisplaybreaks
-\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\newcounter{none}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Res}{Res}
+
 \title{Main-Eigenvalue Switching for Families of Diameter-Five Trees}
 \author{Claude Make No Mistakes}
-\date{25 November 2026 --- Working paper}
+\date{November 2026}
 
 \begin{document}
 \maketitle
+
 \begin{abstract}
-We construct a sign switching that makes every distinct adjacency
-eigenvalue main for all uniform reflected diameter-five trees, allowing
-direct leaves at both centers. We also give sufficient size conditions
-for heterogeneous and nonreflected trees. The proof separates branch
-modes from the radial spectrum and uses exact arithmetic for the finite
-exceptions.
+We construct sign switchings that make every distinct adjacency eigenvalue main
+for all uniform reflected diameter-five trees $T_r^p(a)$ ($r,a\geq 1$,
+$p\geq 0$), allowing arbitrary numbers of direct leaves at both centers. We
+also establish sufficient leaf-group size bounds for heterogeneous and
+nonreflected diameter-five trees, and derive an exact system of finite
+algebraic constraints for the remaining diameter-five cases. The proofs
+separate leaf-difference and branch-contrast modes from the radial subspace and
+resolve the remaining finite families by resultant congruences, modular
+certificates, and exact arithmetic.
 \end{abstract}
 
-\textbf{Theorem.} For every pair of integers \(r,a\geq 1\), joining two
-centers and attaching \(r\) branches with \(a\) leaves each to each
-center gives a tree \(T_r(a)\) with a switching that makes every
-distinct adjacency eigenvalue main.
+\section{Introduction}\label{sec:intro}
 
-For a sign vector \(s\), let \(D_s=\operatorname{diag}(s)\). Since
-\(D_sAD_s(D_sv)=D_sAv\) and \(\mathbf 1^TD_sv=s^Tv\), it suffices to
-exhibit one eigenvector of \(A\) with nonzero inner product with \(s\)
-for every distinct eigenvalue.
+An eigenvalue $\lambda$ of the adjacency matrix $A$ of a finite simple graph
+$G$ is called \emph{main} if its eigenspace is not orthogonal to the all-ones
+vector $\mathbf{1}$. A \emph{sign switching} replaces $A$ by
+$D_s A D_s$, where $D_s = \diag(s)$ for a sign vector
+$s \in \{-1,1\}^{|V(G)|}$. Problem~1.6 of Akbari, Kumar, Mohar, and
+Pragada~\cite{AKMP} asks whether every tree and every connected regular graph
+of order at least three admits a sign switching for which every distinct
+eigenvalue is main. Dong~\cite{Dong} established this for all trees of diameter
+at most four, while Cha and Shan~\cite{ChaShan} studied diameter-five trees
+and their uniform reflected families $T_r(a)$ and $T_r^p(a)$ in connection with
+main eigenvalues.
 
-\section{\texorpdfstring{Spectrum of
-\(T_r(a)\)}{Spectrum of T\_r(a)}}\label{spectrum-of-t_ra}
+Since $D_s^2 = I$, $D_s A D_s (D_s v) = D_s A v$, and
+$\mathbf{1}^T D_s v = s^T v$, the matrices $A$ and $D_s A D_s$ share the same
+distinct eigenvalues, and a distinct eigenvalue $\lambda$ of $D_s A D_s$ is main
+if and only if $A$ has a $\lambda$-eigenvector $v$ with $s^T v \neq 0$. We say
+that $s$ \emph{detects} $\lambda$ when such an eigenvector exists, and call $s$
+a \emph{full switching} if $s$ detects every distinct eigenvalue of $A$.
 
-Vectors supported on one leaf set with sum zero give the eigenvalue
-\(0\) when \(a\geq 2\). They span a space of dimension \(2r(a-1)\). On
-each side, choose weights \(t_i\) on its \(r\) branches with
-\(\sum_i t_i=0\). For \(x=\pm\sqrt a\), assign \(xt_i\) to branch vertex
-\(i\), \(t_i\) to each of its leaves, and zero to both centers and the
-entire other side. These give \(2(r-1)\) dimensions at each of
-\(\pm\sqrt a\) when \(r\geq 2\).
+In Section~\ref{sec:uniform} we construct a full switching for every uniform
+reflected diameter-five tree $T_r(a)$ ($r,a \geq 1$) without direct leaves
+(Theorem~\ref{thm:uniform}). In Section~\ref{sec:radial} we analyze the radial
+invariant subspace of an arbitrary diameter-five tree and prove sufficient
+leaf-group size bounds for both nonreflected trees
+(Proposition~\ref{prop:heterogeneous}) and reflected trees with unequal branch
+sizes (Proposition~\ref{prop:reflected}). In Section~\ref{sec:direct} we combine
+the reflected bound with exact modular resultant certificates to prove the
+existence of a full switching for every uniform reflected tree $T_r^p(a)$ with
+direct leaves (Theorem~\ref{thm:uniform-direct}). Section~\ref{sec:remaining}
+records the exact algebraic constraints governing arbitrary diameter-five trees,
+and Section~\ref{sec:repro} summarizes the accompanying Python/SymPy and Lean~4
+verification artifacts.
 
-The remaining six dimensions are constant on each of the three types of
-vertices on each side. Split them into reflection parity \(e=\pm1\), so
-that the values on the second side are \(e\) times those on the first. A
-radial eigenvector has first-side center, branch and leaf values
-\((x^2-a,x,1)\), where
+\section{Uniform reflected trees without direct leaves}\label{sec:uniform}
 
+For integers $r,a \geq 1$, let $T_r(a)$ be the diameter-five tree obtained by
+joining two centers by an edge and attaching $r$ branch vertices, each adjacent
+to $a$ leaves, to each center.
+
+\begin{theorem}\label{thm:uniform}
+For every pair of integers $r,a\geq 1$, the tree $T_r(a)$ admits a sign
+switching that makes every distinct adjacency eigenvalue main.
+\end{theorem}
+
+\subsection{Spectrum of \texorpdfstring{$T_r(a)$}{T\_r(a)}}\label{sec:spectrum-tra}
+
+The tree $T_r(a)$ has $2 + 2r(a+1)$ vertices. We decompose its adjacency
+spectrum into three mutually orthogonal invariant subspaces:
+
+\begin{enumerate}
+\item \emph{Leaf differences (eigenvalue $0$).} When $a \geq 2$, vectors
+  supported on the $a$ leaves of a single branch whose coordinates sum to $0$
+  are $0$-eigenvectors of $A$. Across all $2r$ branches they span a space of
+  dimension $2r(a-1)$.
+
+\item \emph{Branch contrasts (eigenvalues $\pm\sqrt{a}$).} When $r \geq 2$,
+  choose weights $t_1,\dots,t_r$ on the $r$ branches of one side with
+  $\sum_{i=1}^r t_i = 0$. For $x = \pm\sqrt{a}$, assign $x t_i$ to branch
+  vertex $i$, $t_i$ to each of its $a$ leaves, and $0$ to both centers and the
+  opposite side. Direct verification shows $A v = x v$, yielding a subspace of
+  dimension $2(r-1)$ at each of $+\sqrt{a}$ and $-\sqrt{a}$.
+
+\item \emph{Radial subspace (dimension $6$).} Vectors constant on each of the
+  three vertex types (center, branch, leaf) on each side form a
+  $6$-dimensional $A$-invariant subspace orthogonal to both spaces above. Split
+  it into reflection parity $e \in \{+1,-1\}$, so that coordinates on the second
+  side are $e$ times those on the first. Let $(c, b, \ell)$ denote the
+  first-side center, branch, and leaf values of a parity-$e$ eigenvector with
+  eigenvalue $x$. The leaf and branch equations read $b = x\ell$ and
+  $c + a\ell = xb$. If $\ell = 0$, then $b = c = 0$, so every nonzero radial
+  eigenvector has $\ell \neq 0$. Normalizing $\ell = 1$ gives
+  $(c, b, \ell) = (x^2-a, x, 1)$, and the center equation becomes
+  \begin{equation}\label{eq:fe}
+    f_e(x) = (x-e)(x^2-a) - rx = 0.
+  \end{equation}
+\end{enumerate}
+
+In the orthonormal basis of normalized type indicators, the restriction of $A$
+to each parity-$e$ radial subspace is the symmetric unreduced tridiagonal
+matrix with diagonal $(e,0,0)$ and off-diagonal entries $\sqrt{r},\sqrt{a} > 0$.
+Its first-row recurrence determines every eigenvector from its first coordinate,
+so each $f_e$ has three real, simple roots. The two cubics share no roots
+because $f_+(x) - f_-(x) = -2(x^2-a)$ while
+$f_e(\pm\sqrt{a}) = \mp r\sqrt{a} \neq 0$; the same evaluation shows that no
+radial eigenvalue equals $\pm\sqrt{a}$. Moreover $f_e(0) = ea \neq 0$, so $0$
+is not a radial eigenvalue. The dimensions
+$2r(a-1) + 4(r-1) + 6 = 2 + 2r(a+1)$ exhaust the entire space, giving the
+complete spectrum of $T_r(a)$.
+
+\subsection{Switching construction and finite exceptions}\label{sec:switching-tra}
+
+\begin{proof}[Proof of Theorem~\ref{thm:uniform}]
+Start with every sign equal to $+1$ and flip $k$ leaves in a single branch on
+the first side, where $k=1$ if $a=1$ and $1 \leq k \leq a-1$ if $a \geq 2$.
+
+\begin{itemize}
+\item When $a \geq 2$, the flipped branch contains both a $+1$ leaf and a $-1$
+  leaf, so their difference vector detects $0$ (inner product $\pm 2$).
+\item When $r \geq 2$, the flipped branch has signed leaf sum $a - 2k$ whereas
+  every unflipped branch has leaf sum $a$. Choosing weights $t_1=1$ on the
+  flipped branch and $t_2=-1$ on another branch on the same side gives inner
+  product $-2k \neq 0$ at both $\pm\sqrt{a}$.
+\item For every antisymmetric radial eigenvalue ($e=-1$), the unflipped sum
+  vanishes by antisymmetry, so flipping $k$ leaves on the first side gives
+  inner product $-2k \neq 0$.
+\item For a symmetric radial eigenvalue $x$ ($e=+1$), the unflipped sum on each
+  side is $F(x) = (x^2-a) + rx + ra$. Flipping $k$ leaves on the first side
+  yields inner product $2(F(x) - k)$, where
+  \[
+    F(x) = x^2 - a + rx + ra.
+  \]
+\end{itemize}
+
+When $a \geq 5$, the four integers $k \in \{1,2,3,4\}$ are all admissible
+($1 \leq k \leq a-1$). Since $f_+$ has only three roots, at most three values
+of $k$ can satisfy $F(x) = k$, leaving at least one admissible $k$ that detects
+all three symmetric radial eigenvalues.
+
+When $1 \leq a \leq 4$, take $k = 1$ and put
+$q(x) = F(x) - 1 = x^2 - a + rx + ra - 1$. Both $f_+(x)$ and $q(x)$ are monic
+in $x$ over $\mathbb{Z}[r,a]$, so their Sylvester resultant
+$\Res_x(f_+, q) \in \mathbb{Z}[r,a]$ commutes with specialization of $(r,a)$.
+Reducing modulo $r$ sets $r = 0$, giving
 \[
-f_e(x)=(x-e)(x^2-a)-rx=0.
+  \Res_x(f_+, q)
+  \equiv \Res_x\bigl((x-1)(x^2-a),\, x^2-a-1\bigr)
+  = -a \pmod{r},
 \]
+because by multiplicativity of the resultant for monic polynomials the
+specialized resultant is the product of $q|_{r=0}(1) = -a$ and the two values
+$(x^2-a-1)|_{x^2=a} = -1$ at the roots of $x^2-a$. Consequently, $f_+$ and $q$
+can share a root only when $r \mid a$. Table~\ref{tab:res-tra} lists
+$\Res_x(f_+, q)$ for all eight pairs $(r,a)$ with $1 \leq a \leq 4$ and
+$r \mid a$.
 
-Each parity space has an orthonormal basis of normalized type indicators
-in which the restriction is a symmetric tridiagonal matrix with diagonal
-\((e,0,0)\) and off-diagonal entries \(\sqrt r,\sqrt a\). The recurrence
-from its first row determines every eigenvector from its first
-coordinate, so its three roots are real and simple. Roots of the two
-cubics cannot coincide because their difference is \(-2(x^2-a)\) and
-\(f_e(\pm\sqrt a)=-r(\pm\sqrt a)\ne0\). Also \(f_e(0)=ea\ne0\). The
-listed dimensions sum to \(2+2r(a+1)\), giving the entire spectrum.
-
-\section{Switching and the finite
-exceptions}\label{switching-and-the-finite-exceptions}
-
-Start with every sign positive and flip \(k\) leaves in one branch on
-the first side. Take \(k=1\) if \(a=1\), and choose \(1\leq k\leq a-1\)
-otherwise. The flipped branch has two differently signed leaves when
-\(a\geq2\), so their difference vector detects \(0\). Its leaf sum
-differs from that of any unflipped branch. Taking weights \(1,-1\) on
-the flipped branch and another branch on its side therefore gives inner
-product \(-2k\) at each of \(\pm\sqrt a\) if \(r\geq2\). The inner
-product at every antisymmetric radial eigenvalue is also \(-2k\). For a
-symmetric radial eigenvalue \(x\), it equals \(2(F(x)-k)\), where
-
-\[
-F(x)=x^2-a+rx+ra.
-\]
-
-When \(a\geq5\), the four choices \(1,2,3,4\) are admissible and the
-three symmetric radial eigenvalues forbid at most three choices. For
-\(1\leq a\leq4\), take \(k=1\) and put \(q=F-1\). As an integer
-polynomial in \(r,a\), the resultant satisfies
-
-\[
-\operatorname{Res}_x(f_+,q)\equiv
-\operatorname{Res}_x((x-1)(x^2-a),x^2-a-1)=-a\pmod r.
-\]
-
-The specialized resultant is the product of \(q(1)=-a\) and the two
-values \(-1\) at the roots of \(x^2-a\), by multiplicativity. A common
-root therefore requires \(r\mid a\). The remaining evaluations use the
-same polynomials.
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}rrr@{}}
-\toprule\noalign{}
-\(a\) & \(r\) & \(\operatorname{Res}_x(f_+,q)\) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{table}[ht]
+\centering
+\caption{Values of $\Res_x(f_+, q)$ for all divisor pairs $r \mid a$ with $1 \leq a \leq 4$.}\label{tab:res-tra}
+\begin{tabular}{rrr}
+\toprule
+$a$ & $r$ & $\Res_x(f_+, q)$ \\
+\midrule
 1 & 1 & 1 \\
 2 & 1 & 0 \\
 2 & 2 & 16 \\
@@ -119,182 +190,287 @@ same polynomials.
 4 & 1 & 4 \\
 4 & 2 & 274 \\
 4 & 4 & 3256 \\
-\end{longtable}
-}
+\bottomrule
+\end{tabular}
+\end{table}
 
-For \((r,a)=(1,2)\), flip one leaf and its branch vertex. The two
-differently signed leaves still detect \(0\), and \(r=1\) has no
-within-side branch contrasts. The symmetric overlap is now
-\(2(F(x)-x-1)=2(x^2-1)\). Its possible zeros \(1,-1\) are excluded by
-\(f_+(1)=-1\) and \(f_+(-1)=3\). The antisymmetric overlap is
-\(-2(x+1)\), with \(f_-(-1)=1\). This completes the proof for every
-\(r,a\geq1\).
+Only $(r,a) = (1,2)$ has vanishing resultant. For $(r,a) = (1,2)$, flip one
+leaf and its branch vertex on the first side (leaving all other signs $+1$).
+The two differently signed leaves still detect $0$, and $r = 1$ has no branch
+contrasts. At a symmetric radial eigenvalue $x$, subtracting $2(x+1)$ from
+$2F(x)$ gives overlap $2(F(x) - x - 1) = 2(x^2 - 1)$; its potential zeros
+$x = \pm 1$ are excluded by $f_+(1) = -1$ and $f_+(-1) = 3$. At an
+antisymmetric radial eigenvalue $x$, the overlap is $-2(x+1)$, and its unique
+zero $x = -1$ is excluded by $f_-(-1) = 1$. This completes the proof for every
+$r,a \geq 1$.
+\end{proof}
 
-\section{The radial space of any diameter-five
-tree}\label{the-radial-space-of-any-diameter-five-tree}
+\section{The radial space of an arbitrary diameter-five tree}\label{sec:radial}
 
-Write \(B_i\) for the set of distinct positive branch sizes at center
-\(i\in\{L,R\}\), \(b_{i,a}\) for the number of branches of size
-\(a\in B_i\), and \(p_i\) for the number of leaves adjacent directly to
-center \(i\). Let \(W\) be the invariant subspace of vectors constant on
-each of the following cells.
+Every diameter-five tree has a unique central edge joining two centers
+$L$ and $R$, each with at least one branch vertex of positive leaf count. For
+each side $i \in \{L,R\}$, let $B_i \subset \mathbb{Z}_{\geq 1}$ be the
+nonempty set of distinct branch sizes attached to center $i$, let
+$b_{i,a} \geq 1$ be the number of branches of size $a \in B_i$, and let
+$p_i \geq 0$ be the number of leaves adjacent directly to center $i$.
 
+Consider the partition of the vertex set into the following cells:
 \begin{itemize}
-\tightlist
-\item
-  Each center is its own cell.
-\item
-  For each side and size, the branch vertices form one cell and all
-  their leaves form a second cell.
-\item
-  The direct leaves on each side that has them form their own cell.
+\item each center $L$ and $R$ as a singleton cell;
+\item for each $i \in \{L,R\}$ and $a \in B_i$, one cell of all $b_{i,a}$
+  branch vertices of size $a$ on side $i$, and a second cell of all
+  $a b_{i,a}$ leaves attached to them;
+\item for each $i \in \{L,R\}$ with $p_i > 0$, one cell of all $p_i$ direct
+  leaves on side $i$.
 \end{itemize}
-
-The dimension is
-\(D=2+2(|B_L|+|B_R|)+\mathbf 1_{p_L>0}+\mathbf 1_{p_R>0}\). The
-orthogonal complement is accounted for by differences inside each leaf
-group, giving \(0\), and by contrasts between same-size branches on one
-side, giving \(\pm\sqrt a\) whenever \(b_{i,a}\geq2\). The branch
-contrast is the same vector with weights \(t_i\) used in the proof of
-\(T_r(a)\). The leaf-difference spaces, branch-contrast spaces, and
-\(W\) are orthogonal, and their dimensions sum to the tree order.
-
-For an eigenvector in \(W\) at \(x\ne0\), let \(c_i\) denote its center
-values. Away from \(x^2=a\), the branch and leaf values on side \(i\) in
-group \(a\) are respectively \(x c_i/(x^2-a)\) and \(c_i/(x^2-a)\). The
-direct-leaf value, when present, is \(c_i/x\). If \(x^2=a\in B_i\), the
-branch and leaf equations force \(c_i=0\). Both centers cannot vanish in
-a nonzero vector in \(W\) at \(x\ne0\). With both centers zero, the only
-possible remaining branch group on either side has size \(x^2\), and the
-center equation forces that group's common branch value to vanish. Also,
-if \(c_L=0\) in a nonzero vector, the center equation on the left forces
-\(x^2\in B_L\), and \(c_R\ne0\) forces \(x^2\notin B_R\). These
-statements hold with the sides reversed.
-
-At \(x=0\) every branch value is zero. If \(p_i>0\), its direct-leaf
-equation gives \(c_i=0\). If \(p_i=0\), the center equation gives
-\(c_j=0\) for the other side \(j\). In particular, if both sides have
-direct leaves or neither does, \(0\) is absent from \(W\). In those
-cases both centers must vanish, each radial branch leaf value then
-vanishes by the branch equation, and any radial direct-leaf value
-vanishes by the center equation.
-
-\subsection{Unequal branch sizes}\label{unequal-branch-sizes}
-
-Set \(m_i=\max(B_i\cup\{p_i\})\). A sufficient condition for a full
-switching is
-
+This partition is equitable, so the subspace $W$ of vectors constant on each
+cell is $A$-invariant and has dimension
 \[
-m_L\geq D+2,\qquad m_R\geq 2|B_L\setminus B_R|+2.
+  D = 2 + 2(|B_L| + |B_R|) + \mathbf{1}_{p_L > 0} + \mathbf{1}_{p_R > 0}.
 \]
+Its orthogonal complement $W^\perp$ decomposes orthogonally into:
+\begin{itemize}
+\item leaf-difference spaces of eigenvalue $0$ (sum-zero vectors supported on
+  the leaves of a single branch or on the direct leaves of one side), of total
+  dimension
+  $\sum_{i}\bigl((p_i - \mathbf{1}_{p_i>0}) + \sum_{a\in B_i} b_{i,a}(a-1)\bigr)$;
+\item branch-contrast spaces of eigenvalues $\pm\sqrt{a}$ for each side $i$ and
+  repeated size $a \in B_i$ with $b_{i,a} \geq 2$ (constructed with sum-zero
+  branch weights $t_j$ as in Section~\ref{sec:spectrum-tra}), of total
+  dimension $\sum_{i,a} 2(b_{i,a} - 1)$.
+\end{itemize}
+The dimensions of $W$, the leaf-difference spaces, and the branch-contrast
+spaces sum to the tree order $2 + \sum_i p_i + \sum_{i,a} b_{i,a}(a+1)$.
 
-The sides can also be interchanged. To see this, choose a leaf group of
-size \(m_i\) on each side. These can be leaves of a single branch or
-leaves adjacent directly to a center. Start all signs positive, and in
-each group of repeated branches on either side designate one
-representative branch. If one of the two chosen leaf groups belongs to a
-repeated branch class, use its branch as the representative. Flip
-exactly one leaf of each representative except those reserved in the two
-chosen groups. In the chosen groups, use the first \(k_i\) leaves in a
-fixed ordering, with \(1\le k_i\le m_i-1\). Every resulting sign vector
-detects \(0\) by a difference of two leaves in a chosen group, and it
-detects every branch contrast by the difference of signed leaf sums
-between the representative and another branch of its size.
+\begin{lemma}\label{lem:radial-equations}
+Let $v \in W$ be a nonzero eigenvector of $A$ with eigenvalue $x$, and let
+$c_L, c_R$ denote its coordinates at centers $L,R$.
+\begin{enumerate}
+\item If $x \neq 0$, then:
+  \begin{enumerate}
+  \item on side $i$, the direct-leaf value (when $p_i > 0$) is $c_i / x$, and
+    for every $a \in B_i$ with $x^2 \neq a$ the branch and branch-leaf values
+    are $x c_i / (x^2-a)$ and $c_i / (x^2-a)$, respectively;
+  \item if $x^2 = a \in B_i$, then $c_i = 0$;
+  \item $(c_L, c_R) \neq (0,0)$;
+  \item if $c_L = 0$, then $x^2 \in B_L \setminus B_R$ and $c_R \neq 0$ (and
+    symmetrically with $L$ and $R$ interchanged).
+  \end{enumerate}
+\item If $x = 0$, then every branch value vanishes; $p_i > 0$ implies
+  $c_i = 0$, and $p_i = 0$ implies $c_j = 0$ for the opposite center $j$. In
+  particular, $0$ is not an eigenvalue of $A|_W$ whenever both sides have
+  direct leaves ($p_L, p_R > 0$) or neither side does ($p_L = p_R = 0$).
+\end{enumerate}
+\end{lemma}
 
-Fix one eigenvector for each distinct nonzero eigenvalue in \(W\). If
-its leaf value in the chosen left group vanishes, then \(c_L=0\) and
-\(x^2\in B_L\setminus B_R\). Its leaf value in the chosen right group is
-nonzero since \(c_R\ne0\). Thus for at most \(2|B_L\setminus B_R|\)
-vectors, the overlap is independent of \(k_L\) and affine with nonzero
-slope in \(k_R\). Choose \(k_R\) to avoid their forbidden values. For
-every remaining vector, the left leaf value is nonzero. With \(k_R\)
-fixed, choose \(k_L\) to avoid at most \(D\) forbidden values, one per
-vector. The size bounds give enough choices at both stages.
+\begin{proof}
+Let $y_{i,a}$, $z_{i,a}$, and $d_i$ (when $p_i > 0$) denote the common values
+of $v$ on branch vertices of size $a$, their leaves, and the direct leaves on
+side $i$. The eigenvalue equations $Av = xv$ on the cells are
+\begin{align*}
+  y_{i,a} &= x z_{i,a}, &
+  c_i + a z_{i,a} &= x y_{i,a} \quad\text{(hence }(x^2-a)z_{i,a} = c_i\text{)}, \\
+  c_i &= x d_i \quad (p_i > 0), &
+  c_j + \sum_{a \in B_i} b_{i,a} y_{i,a} + p_i d_i &= x c_i \quad (\{i,j\} = \{L,R\}).
+\end{align*}
 
-\subsection{Reflected trees with unequal branch
-sizes}\label{reflected-trees-with-unequal-branch-sizes}
+Suppose $x \neq 0$. Parts~(a) and~(b) follow immediately from
+$(x^2-a)z_{i,a} = c_i$, $y_{i,a} = x z_{i,a}$, and $c_i = x d_i$. For~(c), if
+$c_L = c_R = 0$, then $d_i = 0$ and $y_{i,a} = z_{i,a} = 0$ for all
+$a \neq x^2$; at most one group $a = x^2$ can remain on side $i$, and the
+center-$i$ equation then forces $b_{i,x^2} y_{i,x^2} = 0$, hence
+$y_{i,x^2} = z_{i,x^2} = 0$ and $v = 0$, a contradiction. For~(d), if
+$c_L = 0$, then $c_R \neq 0$ by~(c), which forces $x^2 \notin B_R$ by~(b). If
+$x^2 \notin B_L$, then all branch and direct-leaf values on side $L$ vanish by
+(a), so the center-$L$ equation gives $c_R = 0$, contradicting~(c). Thus
+$x^2 \in B_L \setminus B_R$.
 
-Suppose the branch multiset and direct-leaf count agree on both sides.
-Write \(q=|B_L|=|B_R|\), \(p=p_L=p_R\), and \(m=m_L=m_R\). A full
-switching exists whenever
+Now suppose $x = 0$. The leaf equations give $y_{i,a} = 0$, the branch
+equations give $z_{i,a} = -c_i/a$, the direct-leaf equation (when $p_i > 0$)
+gives $c_i = 0$, and the center-$i$ equation reduces to $c_j + p_i d_i = 0$
+(forcing $c_j = 0$ when $p_i = 0$). If either $p_L, p_R > 0$ or
+$p_L = p_R = 0$, then $c_L = c_R = 0$, whence all $z_{i,a} = 0$ and all
+$d_i = 0$, so $v = 0$.
+\end{proof}
 
+\subsection{Unequal branch sizes}\label{sec:unequal}
+
+Set $m_i = \max(B_i \cup \{p_i\})$ for $i \in \{L,R\}$.
+
+\begin{proposition}\label{prop:heterogeneous}
+A diameter-five tree admits a full switching whenever
 \[
-m\geq 2q+3+\mathbf 1_{p>0}.
+  m_L \geq D + 2 \qquad\text{and}\qquad m_R \geq 2|B_L \setminus B_R| + 2,
 \]
+or whenever the same inequalities hold with $L$ and $R$ interchanged.
+\end{proposition}
 
-In this case split \(W\) into symmetric and antisymmetric vectors.
-Neither parity has a zero eigenvalue by the zero equations above. No
-nonzero eigenvalue has a radial vector with a vanishing center or a pole
-\(x^2\in B_L\), since any pole forces both centers to vanish. In each
-parity prescribe center signs \(+1,-1\) and mirror all other signs
-across the two sides. Thus every antisymmetric eigenvalue has a nonzero
-overlap, supplied by its center values alone. Use the same
-repeated-branch flips as before, mirrored, and one chosen leaf group of
-size \(m\) per side. Vary both group flip counts together through
-\(1,\ldots,m-1\). Every symmetric eigenvector in \(W\) has a nonzero
-value in that leaf group, so it forbids at most one choice. The
-symmetric subspace has dimension \(1+2q+\mathbf 1_{p>0}\), smaller than
-the number of choices. The repeated-branch and zero modes are visible by
-the same differences as before.
+\begin{proof}
+Choose one leaf group of size $m_i$ on each side $i \in \{L,R\}$ (either the
+leaves of a single branch of size $m_i$ or the $p_i$ direct leaves at center
+$i$). Start with all signs $+1$. For each repeated branch class ($b_{i,a} \geq 2$)
+on either side, designate one representative branch; if the chosen leaf group
+on side $i$ belongs to a repeated branch class, use that branch as its
+representative. Flip one leaf of every representative other than those reserved
+for the two chosen leaf groups. In each chosen leaf group, flip the first $k_i$
+leaves in a fixed ordering, with $1 \leq k_i \leq m_i - 1$.
 
-\section{All uniform reflected trees with direct
-leaves}\label{all-uniform-reflected-trees-with-direct-leaves}
+For every admissible pair $(k_L, k_R)$, the resulting sign vector $s$ detects
+$0$ via a difference of two oppositely signed leaves in the chosen left group
+(since $m_L \geq D + 2 \geq 8$), and detects every branch contrast
+$\pm\sqrt{a}$ via the difference of signed leaf sums between the unique flipped
+representative of class $(i,a)$ (which has $1$ or $k_i \geq 1$ flipped leaves)
+and another, unflipped branch of the same class.
 
-\textbf{Theorem.} Every \(T_r^p(a)\), with \(r,a\geq1\) and \(p\geq0\),
-has a switching that makes every distinct eigenvalue main. Here
-\(T_r^p(a)\) adds \(p\) direct leaves to each center of \(T_r(a)\).
+Now fix one eigenvector $v \in W$ for each distinct nonzero eigenvalue $x$ of
+$A|_W$ (at most $D$ vectors). Because all leaves in the chosen group on side
+$i$ lie in a single cell of $W$, $v$ takes a constant value $\zeta_i$ on that
+group, and the inner product $s^T v$ has the form
+$C_0 - 2\zeta_L k_L - 2\zeta_R k_R$ for a constant $C_0$ independent of
+$(k_L, k_R)$.
 
-The first theorem covers \(p=0\). For \(p>0\), the reflected size bound
-with \(q=1\) covers \(\max(a,p)\geq6\). Assume \(1\le a,p\le5\). Set the
-center signs to \(+1,-1\), flip one branch leaf on each side, and flip
-one direct leaf on each side if \(a=1\) and \(p\geq2\). All flips are
-paired by reflection. This detects all antisymmetric radial modes by the
-center signs, all branch contrasts by the changed branch-leaf sum, and
-all zero modes by differently signed leaves in a group of size at least
-two. If \(a=p=1\), no zero mode occurs.
+Suppose $\zeta_L = 0$. By Lemma~\ref{lem:radial-equations}(1), this forces
+$c_L = 0$ (if the chosen group is a branch of size $a_0 = x^2$, the center-$L$
+equation gives $b_{L,a_0} x z_{L,a_0} = -c_R \neq 0$, so $\zeta_L \neq 0$ in
+that case). Hence $x^2 \in B_L \setminus B_R$, $c_R \neq 0$, and
+$x^2 \notin B_R$, which implies $\zeta_R \neq 0$. At most
+$2|B_L \setminus B_R|$ eigenvalues $x$ satisfy $x^2 \in B_L \setminus B_R$. For
+each such vector, $s^T v$ is independent of $k_L$ and affine in $k_R$ with
+nonzero slope $-2\zeta_R$, forbidding at most one value of $k_R$. Since
+$m_R - 1 \geq 2|B_L \setminus B_R| + 1$, we can fix an admissible $k_R$
+avoiding all of these forbidden values.
 
-Normalize a symmetric radial eigenvector to have value 1 at each center.
-Its eigenvalue is a root of
+For every remaining vector $v$ (at most $D$ in number), $\zeta_L \neq 0$, so
+with $k_R$ fixed the overlap $s^T v$ is affine in $k_L$ with nonzero slope
+$-2\zeta_L$, forbidding at most one value of $k_L$. Since
+$m_L - 1 \geq D + 1 > D$, there exists an admissible $k_L$ avoiding all
+forbidden values. The resulting sign vector $s$ detects every distinct
+eigenvalue of $A$.
+\end{proof}
 
+\subsection{Reflected trees with unequal branch sizes}\label{sec:reflected-unequal}
+
+Suppose the branch multiset and direct-leaf count agree on both sides, so that
+$B_L = B_R$, $b_{L,a} = b_{R,a}$ for all $a \in B_L$, and $p_L = p_R$. Write
+$q = |B_L|$, $p = p_L$, and $m = \max(B_L \cup \{p\})$.
+
+\begin{proposition}\label{prop:reflected}
+A reflected diameter-five tree admits a full switching whenever
 \[
-g(x)=(x-1)x(x^2-a)-rx^2-p(x^2-a).
+  m \geq 2q + 3 + \mathbf{1}_{p > 0}.
 \]
+\end{proposition}
 
-The unflipped noncentral coordinate sum on each side simplifies as
-follows, using the center equation \(x-1=rx/(x^2-a)+p/x\).
+\begin{proof}
+The reflection involution swapping sides $L$ and $R$ splits $W$ into symmetric
+and antisymmetric $A$-invariant subspaces $W = W_+ \oplus W_-$, each of
+dimension $1 + 2q + \mathbf{1}_{p > 0}$. By Lemma~\ref{lem:radial-equations}(2),
+neither parity contains the eigenvalue $0$. By
+Lemma~\ref{lem:radial-equations}(1), no nonzero eigenvalue of $A|_{W_+}$ or
+$A|_{W_-}$ can satisfy $c_L = 0$ or $x^2 \in B_L$ (since reflection symmetry
+gives $c_R = \pm c_L$, so vanishing of one center forces both centers to
+vanish). Consequently, every eigenvector in $W_+$ or $W_-$ has $c_L \neq 0$ and
+takes a nonzero value on every leaf cell.
 
+Prescribe center signs $+1$ on $L$ and $-1$ on $R$, and mirror all noncentral
+signs across the two sides. For every eigenvector $v \in W_-$, the mirrored
+noncentral contributions to $s^T v$ cancel in pairs, leaving
+$s^T v = c_L - c_R = 2 c_L \neq 0$.
+
+For the noncentral signs, choose one leaf group of size $m$ on side $L$ and its
+mirror on side $R$, designate one representative per repeated branch class
+(using the chosen group's branch if it lies in a repeated class), flip one leaf
+in each unreserved representative on both sides, and flip $k$ leaves in the
+chosen group on both sides with $1 \leq k \leq m - 1$. Since $m \geq 5$, the
+resulting sign vector detects $0$ (by oppositely signed leaves in a chosen
+group) and every branch contrast (by the signed leaf-sum differences). For
+every eigenvector $v \in W_+$, the center signs cancel ($c_L - c_L = 0$) and
+the common value $\zeta$ of $v$ on the chosen leaf group is nonzero, so
+$s^T v$ is affine in $k$ with nonzero slope $-4\zeta$. Each of the at most
+$\dim(W_+) = 1 + 2q + \mathbf{1}_{p>0}$ symmetric radial eigenvalues therefore
+forbids at most one $k$. Because
+$m - 1 \geq 2q + 2 + \mathbf{1}_{p > 0} = \dim(W_+) + 1$, at least one
+admissible $k$ detects every symmetric radial eigenvalue.
+\end{proof}
+
+\section{All uniform reflected trees with direct leaves}\label{sec:direct}
+
+For integers $r,a \geq 1$ and $p \geq 0$, let $T_r^p(a)$ denote the reflected
+diameter-five tree obtained from $T_r(a)$ by attaching $p$ direct leaves to
+each center.
+
+\begin{theorem}\label{thm:uniform-direct}
+For all integers $r,a \geq 1$ and $p \geq 0$, the tree $T_r^p(a)$ admits a sign
+switching that makes every distinct adjacency eigenvalue main.
+\end{theorem}
+
+\begin{proof}
+Theorem~\ref{thm:uniform} handles $p = 0$. For $p > 0$,
+Proposition~\ref{prop:reflected} with $q = 1$ handles every case with
+$\max(a,p) \geq 6$. It remains to treat the $25$ pairs with
+$1 \leq a,p \leq 5$ and arbitrary $r \geq 1$.
+
+Set the center signs to $+1$ and $-1$, flip one branch leaf on each side, and
+flip one direct leaf on each side if $a = 1$ and $p \geq 2$; all noncentral
+signs are mirrored across the two sides. By the argument of
+Proposition~\ref{prop:reflected}, this sign vector detects every antisymmetric
+radial eigenvalue (via the center signs) and every branch contrast when
+$r \geq 2$ (via the single altered branch on each side). For eigenvalue $0$:
+$0$ is absent from $W$ by Lemma~\ref{lem:radial-equations}(2), and if $a=p=1$
+there are no leaf-difference modes at all; otherwise either $a \geq 2$ (so the
+flipped branch has oppositely signed leaves) or $a=1, p \geq 2$ (so the direct
+leaves have opposite signs), detecting $0$.
+
+It remains to verify the symmetric radial eigenvalues in $W_+$. Normalize an
+eigenvector $v \in W_+$ to have $c_L = c_R = 1$. By
+Lemma~\ref{lem:radial-equations}(1), $x \neq 0$ and $x^2 \neq a$, and the
+center equation $x - 1 = rx/(x^2-a) + p/x$ clears to
+\begin{equation}\label{eq:g}
+  g(x) = (x - 1)x(x^2 - a) - r x^2 - p(x^2 - a) = 0.
+\end{equation}
+The center signs cancel in $s^T v$, so $\frac{1}{2} s^T v$ equals the signed
+noncentral sum on side $L$. Using the center equation
+$rx/(x^2-a) = x - 1 - p/x$ and $ra/(x^2-a) = x \cdot rx/(x^2-a) - r$, the
+unflipped noncentral sum on side $L$ simplifies to
 \[
-\frac{r(x+a)}{x^2-a}+\frac p x
-= (x-1)+x\left(x-1-\frac p x\right)-r
-= x^2-(r+p+1).
+  \frac{r(x+a)}{x^2-a} + \frac{p}{x}
+  = (x - 1) + x\left(x - 1 - \frac{p}{x}\right) - r
+  = x^2 - (r + p + 1).
 \]
+Set $\ell = 1$ if $a = 1$ and $p \geq 2$, and $\ell = 0$ otherwise. Subtracting
+$2/(x^2-a) + 2\ell/x$ for the flipped leaf (or leaves) and multiplying
+$\frac{1}{2} s^T v$ by $x(x^2-a)$ gives
+\begin{equation}\label{eq:h}
+  h(x) = \bigl(x^2 - (r + p + 1)\bigr)x(x^2 - a) - 2x - 2\ell(x^2 - a).
+\end{equation}
+The factor $x(x^2-a)$ never vanishes at a root of $g$, since $g(0) = ap > 0$
+and $g(\pm\sqrt{a}) = -ra < 0$.
 
-Write \(\ell=1\) if \(a=1\) and \(p\geq2\), and \(\ell=0\) otherwise.
-Multiplying the half-overlap by \(x(x^2-a)\) gives
-
+For each fixed pair $(a,p) \in \{1,\dots,5\}^2$, both $g$ and $h$ are monic in
+$x$ over $\mathbb{Z}[r]$, so their resultant
+$R_{a,p}(r) = \Res_x(g,h) \in \mathbb{Z}[r]$ commutes with specialization of
+$r$. Thus $g$ and $h$ share a root at a positive integer $r$ if and only if
+$R_{a,p}(r) = 0$. From the primitive part of $R_{a,p}(r)$, remove the linear
+factor $r - 1$ at $(a,p) = (2,1)$ and the factor $r^2$ at $(a,p) = (2,2)$,
+where the unreduced resultants factor as
 \[
-h(x)=[x^2-(r+p+1)]x(x^2-a)-2x-2\ell(x^2-a).
+  R_{2,1}(r) = -8(r - 1)(r^4 + 11r^2 - 1), \qquad
+  R_{2,2}(r) = -16 r^2(r^3 + 2r^2 + 14r - 18).
 \]
+For every $(a,p) \in \{1,\dots,5\}^2$, the remaining primitive integer
+polynomial is nonzero at every residue modulo the integer $v$ listed in
+Table~\ref{tab:mod-certs}, hence has no integer roots at all. (The accompanying
+Lean~4 module \path{formalization/ModularExclusions.lean} formally verifies
+all $25$ modular nonvanishing certificates.) Therefore $R_{a,p}(r)$ has a
+positive integer root only for $(r,a,p) = (1,2,1)$.
 
-The multiplier never vanishes at a root of \(g\), since \(g(0)=ap\) and
-\(g(\pm\sqrt a)=-ra\). The resultant
-\(R_{a,p}(r)=\operatorname{Res}_x(g,h)\) has a positive integer root
-only for \((a,p)=(2,1)\), where that root is \(r=1\). The following
-finite certificate verifies the claim using modular evaluations. From
-the primitive part of \(R_{a,p}\) remove the factor \(r-1\) at
-\((a,p)=(2,1)\) and the factor \(r^2\) at \((2,2)\). Each table entry
-\(v\) is a modulus for which the remaining polynomial is nonzero at
-every residue \(0,\ldots,v-1\). These values follow by substituting the
-displayed \(g,h\) into the resultant. The two removed factors occur
-respectively as \(-8(r-1)(r^4+11r^2-1)\) and \(-16r^2(r^3+2r^2+14r-18)\)
-in the original resultants. The accompanying checker also computes the
-positive integer roots directly.
-
-\begin{center}
-\begin{tabular}{@{}rrrrrr@{}}
-\toprule\noalign{}
-\(a\) \(\backslash\) \(p\) & 1 & 2 & 3 & 4 & 5 \\
-\midrule\noalign{}
+\begin{table}[ht]
+\centering
+\caption{Moduli $v$ excluding integer roots of the reduced primitive resultants for $1 \leq a,p \leq 5$.}\label{tab:mod-certs}
+\begin{tabular}{rccccc}
+\toprule
+$a \setminus p$ & 1 & 2 & 3 & 4 & 5 \\
+\midrule
 1 & 3 & 3 & 3 & 5 & 3 \\
 2 & 2 & 5 & 7 & 7 & 17 \\
 3 & 3 & 3 & 3 & 3 & 3 \\
@@ -302,86 +478,153 @@ positive integer roots directly.
 5 & 5 & 5 & 5 & 5 & 5 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 
-For \((r,a,p)=(1,2,1)\), keep both centers positive and flip one branch
-leaf and the direct leaf on the same side. The symmetric radial
-polynomial is \((x-1)(x^3-4x-2)\), and its half-overlap times
-\(x(x^2-2)\) is \(x(x^2-2)^2-x-(x^2-2)\). It equals 1 at \(x=1\) and
-reduces modulo \(x^3-4x-2\) to \((x+1)(x+2)\). Neither \(-1\) nor \(-2\)
-is a root of that cubic. The antisymmetric overlap vanishes only when
-\(x+x^2-2=(x-1)(x+2)=0\), and the antisymmetric polynomial is nonzero at
-\(1,-2\) (value \(-2\) at each). The branch with two leaves supplies the
-zero eigenvector, and there are no repeated-branch contrasts. This
-completes the uniform reflected theorem.
-
-\section{Remaining diameter-five
-case}\label{remaining-diameter-five-case}
-
-For arbitrary parameters the following finite constraints give an exact
-form of the remaining implication. Choose center signs \(\sigma_i\),
-branch signs \(\beta_{i,a,j}\), sums of leaf signs
-\(u_{i,a,j}\in\{-a,-a+2,\ldots,a\}\), and direct-leaf sums
-\(v_i\in\{-p_i,-p_i+2,\ldots,p_i\}\). All these choices are
-independently realizable. Write
-
+For the sole exception $(r,a,p) = (1,2,1)$, keep both center signs equal to
+$+1$ and flip one branch leaf and the direct leaf on the same side. There are
+no repeated-branch contrasts ($r=1$), and the two differently signed leaves of
+the flipped branch detect $0$. For a symmetric radial eigenvalue ($c_L=c_R=1$),
+equation~\eqref{eq:g} becomes $g(x) = (x-1)(x^3 - 4x - 2)$. The unflipped total
+sum on both sides is $2\bigl(1 + (x^2 - 3)\bigr) = 2(x^2 - 2)$, so flipping one
+branch leaf and one direct leaf on one side gives half-overlap multiplied by
+$x(x^2-2)$ equal to
 \[
-U_{i,a}(x)=\sum_j(x\beta_{i,a,j}+u_{i,a,j}),\quad
-H_i(x)=x-\frac{p_i}{x}-\sum_{a\in B_i}\frac{b_{i,a}x}{x^2-a},\quad
-L_i(x)=\sigma_i+\frac{v_i}{x}+\sum_{a\in B_i}\frac{U_{i,a}(x)}{x^2-a}.
+  H(x) = x(x^2 - 2)^2 - x - (x^2 - 2).
+\]
+We have $H(1) = 1 \neq 0$, and reducing $H(x)$ modulo $x^3 - 4x - 2$ yields
+$(x+1)(x+2)$, while $x^3 - 4x - 2$ takes values $1$ and $-2$ at $x = -1$ and
+$x = -2$, respectively. For an antisymmetric radial eigenvalue
+($c_L = 1, c_R = -1$), the unflipped sum vanishes, so the overlap is
+$-2\bigl(\frac{1}{x^2-2} + \frac{1}{x}\bigr) = -2\frac{(x-1)(x+2)}{x(x^2-2)}$.
+Its potential zeros $x = 1, -2$ are excluded because the antisymmetric radial
+polynomial $(x+1)x(x^2-2) - x^2 - (x^2-2)$ evaluates to $-2$ at both $1$ and
+$-2$. This completes the proof.
+\end{proof}
+
+\section{Exact constraints for arbitrary diameter-five trees}\label{sec:remaining}
+
+For an arbitrary diameter-five tree with parameters $(B_i, b_{i,a}, p_i)$, a
+sign vector is summarized on $W$ and its orthogonal complement by center signs
+$\sigma_i \in \{-1,1\}$, branch signs $\beta_{i,a,j} \in \{-1,1\}$
+($1 \leq j \leq b_{i,a}$), branch leaf-sign sums
+$u_{i,a,j} \in \{-a, -a+2, \dots, a\}$, and direct-leaf sign sums
+$v_i \in \{-p_i, -p_i+2, \dots, p_i\}$. Every tuple of such integers is
+independently realizable by a sign vector $s$. Define
+\[
+  U_{i,a}(x) = \sum_{j=1}^{b_{i,a}} (x\beta_{i,a,j} + u_{i,a,j}), \quad
+  H_i(x) = x - \frac{p_i}{x} - \sum_{a\in B_i} \frac{b_{i,a} x}{x^2 - a}, \quad
+  L_i(x) = \sigma_i + \frac{v_i}{x} + \sum_{a\in B_i} \frac{U_{i,a}(x)}{x^2 - a}.
 \]
 
-For \(x\ne0\) away from all poles, the center equations give a radial
-eigenvalue exactly when \(H_L(x)H_R(x)=1\). Its radial overlap with
-center coordinates \((1,H_L(x))\) is \(L_L(x)+H_L(x)L_R(x)\). At a pole
-\(x^2=a\in B_L\setminus B_R\), the radial eigenvalue condition is
-\(H_R(x)=0\). The vector with \((c_L,c_R)=(0,1)\) has left leaf value
-\(-1/(b_{L,a}x)\) in group \(a\), giving overlap
-\(L_R(x)-U_{L,a}(x)/(b_{L,a}x)\). Interchange sides for poles exclusive
-to the right. At a shared pole there are no radial eigenvectors. For
-each nonzero eigenvalue, the required nonvanishing can come from the
-applicable radial equation or from a repeated-branch contrast at
-\(x^2=a\). The contrast criterion is that \(x\beta_{i,a,j}+u_{i,a,j}\)
-varies with \(j\) on at least one side.
+\begin{proposition}\label{prop:constraints}
+A sign vector with parameters $(\sigma_i, \beta_{i,a,j}, u_{i,a,j}, v_i)$ is a
+full switching for a diameter-five tree if and only if the following conditions
+hold:
+\begin{enumerate}
+\item For every $x \neq 0$ with $x^2 \notin B_L \cup B_R$ and
+  $H_L(x) H_R(x) = 1$, we have $L_L(x) + H_L(x) L_R(x) \neq 0$.
+\item For every $x \neq 0$ with $x^2 = a \in B_L \setminus B_R$ and
+  $H_R(x) = 0$, either $L_R(x) - U_{L,a}(x)/(b_{L,a} x) \neq 0$ or
+  $x\beta_{L,a,j} + u_{L,a,j}$ varies with $j$ (and symmetrically for
+  $a \in B_R \setminus B_L$).
+\item For every $a \in B_i$ with $b_{i,a} \geq 2$ and $x = \pm\sqrt{a}$, either
+  $x\beta_{i,a,j} + u_{i,a,j}$ varies with $j$ on at least one side $i$ with
+  $b_{i,a} \geq 2$, or $x$ is detected by the pole radial eigenvector of~(2)
+  when $a$ lies exclusively on one side and the opposite $H$-function vanishes
+  at $x$.
+\item If $0$ is an eigenvalue of $A$ (which occurs when some leaf group has
+  size at least $2$ or when exactly one side has direct leaves), then either
+  $|u_{i,a,j}| < a$ or $|v_i| < p_i$ for some group, or else (when exactly one
+  side, say $L$, has direct leaves)
+  $\sigma_R - v_L/p_L - \sum_{a\in B_R}\sum_{j=1}^{b_{R,a}} u_{R,a,j}/a \neq 0$
+  (and symmetrically when $p_R > 0, p_L = 0$).
+\end{enumerate}
+\end{proposition}
 
-At \(x=0\), a leaf contrast detects the eigenvalue whenever
-\(|u_{i,a,j}|<a\) or \(|v_i|<p_i\) for some group. There is a radial
-zero precisely when exactly one side has direct leaves. If that side is
-the left, solving the zero equations with \((c_L,c_R)=(0,1)\) gives
-overlap \(\sigma_R-v_L/p_L-\sum_{a,j}u_{R,a,j}/a\). Interchange sides
-for the opposite case. If no leaf-contrast or radial zero space exists,
-the zero constraint is absent.
+\begin{proof}
+By the orthogonal decomposition of Section~\ref{sec:radial}, each distinct
+eigenvalue $x$ is detected if and only if $s$ has nonzero inner product with at
+least one eigenvector of $A$ at $x$ lying in $W$, a branch-contrast space, or a
+leaf-difference space.
 
-The open implication asserts that for every diameter-five parameter
-choice outside the proved families there are admissible integer signs
-and sums meeting all of these constraints at once. The two-stage proof
-above handles rows when enough leaf-flip counts are available for its
-one-variable exclusions. It leaves, for example, reflected trees with
-several distinct small branch sizes, as well as nonreflected trees with
-small leaf groups. The exact enumeration verifies the finite parameter
-rows recorded in the evidence file.
+For $x \neq 0$ with $x^2 \notin B_L \cup B_R$, the center equations in
+Lemma~\ref{lem:radial-equations}(1) read $c_R = H_L(x) c_L$ and
+$c_L = H_R(x) c_R$, giving a unique radial direction $(c_L, c_R) = (1, H_L(x))$
+precisely when $H_L(x) H_R(x) = 1$, with overlap $L_L(x) + H_L(x) L_R(x)$.
 
-\section{Sources and scope}\label{sources-and-scope}
+For $x \neq 0$ at a pole $x^2 = a \in B_L \setminus B_R$,
+Lemma~\ref{lem:radial-equations}(1) forces $(c_L, c_R) = (0,1)$ (up to scale),
+$H_R(x) = 0$, and left branch-leaf value $z_{L,a} = -1/(b_{L,a} x)$ in group
+$a$, yielding radial overlap $L_R(x) - U_{L,a}(x)/(b_{L,a} x)$. At a shared
+pole $x^2 \in B_L \cap B_R$, Lemma~\ref{lem:radial-equations}(1) excludes
+radial eigenvectors. On any side $i$ with $b_{i,a} \geq 2$, a branch-contrast
+vector with weights $\sum_j t_j = 0$ has inner product
+$\sum_j t_j(x\beta_{i,a,j} + u_{i,a,j})$, which can be made nonzero if and only
+if $x\beta_{i,a,j} + u_{i,a,j}$ is not constant in $j$.
 
-Problem 1.6 of Akbari, Kumar, Mohar and Pragada asks about trees and
-connected regular graphs of order at least three. This paper addresses
-diameter-five trees. Hangxi Cha and Haiying Shan describe their
-representation and the families \(T_r(a)\) and \(T_r^p(a)\) in §3. H.
-Dong's Paper 8 establishes the diameter-at-most-four case and provides a
-Krylov certificate, recorded as Lemma 2.2 in the frozen Lean statements.
-The theorems here concern the eigenvalues seen after switching.
-\href{https://arxiv.org/html/2609.27046\#S1.SS4}{Switching conjecture},
-\href{https://arxiv.org/html/2607.13577v1\#S3}{Diameter-five tree
-notation},
-\href{https://raw.githubusercontent.com/Horace-Maxwell/ai4math-results/main/lean/Research/Backfill/Paper8/Challenge.lean}{Paper
-8 v2 frozen statements}
+At $x = 0$, a leaf-difference eigenvector detects $0$ if and only if some leaf
+group contains both $+1$ and $-1$ signs, i.e., $|u_{i,a,j}| < a$ or
+$|v_i| < p_i$. By Lemma~\ref{lem:radial-equations}(2), a radial $0$-eigenvector
+exists precisely when exactly one side has direct leaves; if $p_L > 0$ and
+$p_R = 0$, normalizing $(c_L, c_R) = (0,1)$ yields $d_L = -1/p_L$,
+$z_{R,a} = -1/a$, and all other coordinates $0$, giving the stated overlap.
+\end{proof}
 
-\section{Computational
-reproducibility}\label{computational-reproducibility}
+The general diameter-five conjecture remains open outside the families covered
+by Theorems~\ref{thm:uniform} and~\ref{thm:uniform-direct} and
+Propositions~\ref{prop:heterogeneous} and~\ref{prop:reflected}---for example,
+reflected trees with several distinct small branch sizes and nonreflected trees
+with small leaf groups.
 
-The companion repository includes replay commands, exact input data, and
-source code. AI assistance was used to develop and check the arguments
-and the software. This working paper reports the stated restricted
-results.
+\section{Computational verification and formalization}\label{sec:repro}
+
+The companion repository provides exact verification scripts
+(\path{replay.py}, using Python~3.12 and SymPy~1.14.0) and Lean~4.34.1
+formalization modules (\path{formalization/FlipChoices.lean} and
+\path{formalization/ModularExclusions.lean}):
+
+\begin{itemize}
+\item Exact Krylov-rank checks against the square-free characteristic
+  polynomial degree verify the small-graph switching counts ($K_1, K_2, P_3,
+  P_4, K_4-e, P_6, K_{1,3}, C_6, K_{3,3}$, and the triangular prism), which are
+  independently cross-checked via rational primary spectral subspaces in
+  \path{verification/switching_controls.py}.
+\item Exact symbolic arithmetic verifies the resultant congruence and divisor
+  table of Theorem~\ref{thm:uniform} and tests the constructed sign vectors
+  directly on all $40$ adjacency matrices $T_r(a)$ with $1 \leq r \leq 5$ and
+  $1 \leq a \leq 8$.
+\item Exact resultant computation over $\mathbb{Z}[r]$ confirms that
+  $(r,a,p) = (1,2,1)$ is the unique positive integer root across all $25$ pairs
+  $1 \leq a,p \leq 5$ in Theorem~\ref{thm:uniform-direct}, verifies the
+  exceptional witness on the adjacency matrix of $T_1^1(2)$, and finds exact
+  witnesses for $180$ heterogeneous diameter-five parameter rows with one or
+  two branches per side, branch sizes in $\{1,2,3\}$, and $p_i \in \{0,1\}$.
+\item Lean~4.34.1 verifies the four-choice counting step
+  (\texttt{Switching.four\_choices}) and all $25$ modular nonvanishing
+  certificates (\texttt{Switching.reflected\_exclusions}). The script
+  \texttt{verification/\allowbreak check\_lean\_inputs.py} cross-checks the $25$ polynomial
+  coefficient lists in Lean against the recomputed resultants.
+\end{itemize}
+
+\begin{thebibliography}{9}
+
+\bibitem{AKMP}
+S.~Akbari, H.~Kumar, B.~Mohar, and S.~Pragada,
+arXiv:2609.27046, Section~1.4 (Problem~1.6),
+\url{https://arxiv.org/html/2609.27046#S1.SS4}.
+
+\bibitem{ChaShan}
+H.~Cha and H.~Shan,
+arXiv:2607.13577v1, Section~3 (diameter-five tree notation and families $T_r(a)$, $T_r^p(a)$),
+\url{https://arxiv.org/html/2607.13577v1#S3}.
+
+\bibitem{Dong}
+H.~Dong,
+Paper~8 (diameter-at-most-four switching and Krylov certificate),
+\url{https://github.com/Horace-Maxwell/ai4math-results/blob/main/papers/switching-diam4/note.tex};
+Lean statements:
+\url{https://raw.githubusercontent.com/Horace-Maxwell/ai4math-results/main/lean/Research/Backfill/Paper8/Challenge.lean}.
+
+\end{thebibliography}
 
 \end{document}

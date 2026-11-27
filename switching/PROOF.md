@@ -8,7 +8,7 @@ For a sign vector \(s\), let \(D_s=\operatorname{diag}(s)\). Since \(D_sAD_s(D_s
 
 Vectors supported on one leaf set with sum zero give the eigenvalue \(0\) when \(a\geq 2\). They span a space of dimension \(2r(a-1)\). On each side, choose weights \(t_i\) on its \(r\) branches with \(\sum_i t_i=0\). For \(x=\pm\sqrt a\), assign \(xt_i\) to branch vertex \(i\), \(t_i\) to each of its leaves, and zero to both centers and the entire other side. These give \(2(r-1)\) dimensions at each of \(\pm\sqrt a\) when \(r\geq 2\).
 
-The remaining six dimensions are constant on each of the three types of vertices on each side. Split them into reflection parity \(e=\pm1\), so that the values on the second side are \(e\) times those on the first. A radial eigenvector has first-side center, branch and leaf values \((x^2-a,x,1)\), where
+The remaining six dimensions are constant on each of the three types of vertices on each side. Split them into reflection parity \(e=\pm1\), so that the values on the second side are \(e\) times those on the first. If the leaf value vanished, the leaf and branch equations would force the branch and center values to vanish as well; normalizing the leaf value to \(1\) therefore gives first-side center, branch and leaf values \((x^2-a,x,1)\), where
 
 \[
 f_e(x)=(x-e)(x^2-a)-rx=0.
@@ -24,7 +24,7 @@ Start with every sign positive and flip \(k\) leaves in one branch on the first 
 F(x)=x^2-a+rx+ra.
 \]
 
-When \(a\geq5\), the four choices \(1,2,3,4\) are admissible and the three symmetric radial eigenvalues forbid at most three choices. For \(1\leq a\leq4\), take \(k=1\) and put \(q=F-1\). As an integer polynomial in \(r,a\), the resultant satisfies
+When \(a\geq5\), the four choices \(1,2,3,4\) are admissible and the three symmetric radial eigenvalues forbid at most three choices. For \(1\leq a\leq4\), take \(k=1\) and put \(q=F-1\). Since both \(f_+\) and \(q\) are monic in \(x\), their Sylvester resultant in \(\mathbb Z[r,a]\) commutes with specialization of \((r,a)\) and satisfies
 
 \[
 \operatorname{Res}_x(f_+,q)\equiv
@@ -48,7 +48,7 @@ For \((r,a)=(1,2)\), flip one leaf and its branch vertex. The two differently si
 
 ## The radial space of any diameter-five tree
 
-Write \(B_i\) for the set of distinct positive branch sizes at center \(i\in\{L,R\}\), \(b_{i,a}\) for the number of branches of size \(a\in B_i\), and \(p_i\) for the number of leaves adjacent directly to center \(i\). Let \(W\) be the invariant subspace of vectors constant on each of the following cells.
+Every diameter-five tree has a unique central edge joining two centers \(L,R\), each with at least one branch vertex of positive leaf count. Write \(B_i\) for the nonempty set of distinct positive branch sizes at center \(i\in\{L,R\}\), \(b_{i,a}\ge1\) for the number of branches of size \(a\in B_i\), and \(p_i\ge0\) for the number of leaves adjacent directly to center \(i\). Let \(W\) be the invariant subspace of vectors constant on each of the following cells.
 
 - Each center is its own cell.
 - For each side and size, the branch vertices form one cell and all their leaves form a second cell.
@@ -80,7 +80,7 @@ Suppose the branch multiset and direct-leaf count agree on both sides. Write \(q
 m\geq 2q+3+\mathbf 1_{p>0}.
 \]
 
-In this case split \(W\) into symmetric and antisymmetric vectors. Neither parity has a zero eigenvalue by the zero equations above. No nonzero eigenvalue has a radial vector with a vanishing center or a pole \(x^2\in B_L\), since any pole forces both centers to vanish. In each parity prescribe center signs \(+1,-1\) and mirror all other signs across the two sides. Thus every antisymmetric eigenvalue has a nonzero overlap, supplied by its center values alone. Use the same repeated-branch flips as before, mirrored, and one chosen leaf group of size \(m\) per side. Vary both group flip counts together through \(1,\ldots,m-1\). Every symmetric eigenvector in \(W\) has a nonzero value in that leaf group, so it forbids at most one choice. The symmetric subspace has dimension \(1+2q+\mathbf 1_{p>0}\), smaller than the number of choices. The repeated-branch and zero modes are visible by the same differences as before.
+In this case split \(W\) into symmetric and antisymmetric vectors. Neither parity has a zero eigenvalue by the zero equations above. No nonzero eigenvalue has a radial vector with a vanishing center or a pole \(x^2\in B_L\), since any pole forces both centers to vanish. Prescribe center signs \(+1,-1\) and mirror all other signs across the two sides. Thus every antisymmetric eigenvalue has a nonzero overlap, supplied by its center values alone. Use the same repeated-branch flips as before, mirrored, and one chosen leaf group of size \(m\) per side. Vary both group flip counts together through \(1,\ldots,m-1\). Every symmetric eigenvector in \(W\) has a nonzero value in that leaf group, so it forbids at most one choice. The symmetric subspace has dimension \(1+2q+\mathbf 1_{p>0}\), smaller than the number of choices. The repeated-branch and zero modes are visible by the same differences as before.
 
 ## All uniform reflected trees with direct leaves
 
@@ -108,7 +108,7 @@ Write \(\ell=1\) if \(a=1\) and \(p\geq2\), and \(\ell=0\) otherwise. Multiplyin
 h(x)=[x^2-(r+p+1)]x(x^2-a)-2x-2\ell(x^2-a).
 \]
 
-The multiplier never vanishes at a root of \(g\), since \(g(0)=ap\) and \(g(\pm\sqrt a)=-ra\). The resultant \(R_{a,p}(r)=\operatorname{Res}_x(g,h)\) has a positive integer root only for \((a,p)=(2,1)\), where that root is \(r=1\). The following finite certificate verifies the claim using modular evaluations. From the primitive part of \(R_{a,p}\) remove the factor \(r-1\) at \((a,p)=(2,1)\) and the factor \(r^2\) at \((2,2)\). Each table entry \(v\) is a modulus for which the remaining polynomial is nonzero at every residue \(0,\ldots,v-1\). These values follow by substituting the displayed \(g,h\) into the resultant. The two removed factors occur respectively as \(-8(r-1)(r^4+11r^2-1)\) and \(-16r^2(r^3+2r^2+14r-18)\) in the original resultants. The accompanying checker also computes the positive integer roots directly.
+The multiplier never vanishes at a root of \(g\), since \(g(0)=ap\) and \(g(\pm\sqrt a)=-ra\). Both \(g\) and \(h\) are monic in \(x\) over \(\mathbb Z[r]\), so their resultant \(R_{a,p}(r)=\operatorname{Res}_x(g,h)\) commutes with specialization of \(r\). It has a positive integer root only for \((a,p)=(2,1)\), where that root is \(r=1\). The following finite certificate verifies the claim using modular evaluations. From the primitive part of \(R_{a,p}\) remove the factor \(r-1\) at \((a,p)=(2,1)\) and the factor \(r^2\) at \((2,2)\). Each table entry \(v\) is a modulus for which the remaining polynomial is nonzero at every residue \(0,\ldots,v-1\). These values follow by substituting the displayed \(g,h\) into the resultant. The two removed factors occur respectively as \(-8(r-1)(r^4+11r^2-1)\) and \(-16r^2(r^3+2r^2+14r-18)\) in the original resultants. The accompanying checker also computes the positive integer roots directly.
 
 | \(a\) \(\backslash\) \(p\) | 1 | 2 | 3 | 4 | 5 |
 |---:|---:|---:|---:|---:|---:|
